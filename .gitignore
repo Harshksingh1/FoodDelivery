@@ -35,6 +35,7 @@ packages/
 _ReSharper*/
 *.DotSettings.user
 .ionide/
+*.csproj.user
 
 ## ─── Test results ──────────────────────────────────────────────────
 TestResults/
@@ -48,13 +49,11 @@ coverage.opencover.xml
 ## ─── Docker ────────────────────────────────────────────────────────
 .dockerignore
 
-## ─── Environment / secrets ─────────────────────────────────────────
-.env
-.env.*
-!.env.example
-appsettings.Development.json
-appsettings.Local.json
-secrets.json
+## ─── SECRETS — never push these ───────────────────────────────────
+## Real appsettings with DB connection strings, JWT keys, email passwords
+appsettings.json
+appsettings.*.json
+!appsettings.Example.json
 
 ## ─── OS generated ──────────────────────────────────────────────────
 .DS_Store
@@ -72,5 +71,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-## ─── Rider temp ────────────────────────────────────────────────────
-*.sln.iml
+## ─── Uploaded images / static files ───────────────────────────────
+**/wwwroot/profiles/
+**/wwwroot/restaurants/
+**/wwwroot/menu/
+
+## ─── Serilog log files ─────────────────────────────────────────────
+**/logs/

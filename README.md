@@ -17,6 +17,7 @@ FoodDelivery.sln
 │   └── FoodDelivery.Shared           ← Shared contracts, events, common utilities
 │
 ├── Services/
+|   ├── Shared/                       ← Shared contracts, events, common utilities
 │   ├── AuthService/                  ← JWT authentication & user management
 │   ├── CatalogService/               ← Restaurants, menus & food items
 │   ├── OrderService/                 ← Order lifecycle management

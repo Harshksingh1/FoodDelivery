@@ -1,0 +1,184 @@
+version: "3.9"
+
+networks:
+  fooddelivery-net:
+    driver: bridge
+
+volumes:
+  sqlserver-data:
+  rabbitmq-data:
+
+services:
+
+  # ─────────────────────────────────────────
+  # Infrastructure
+  # ─────────────────────────────────────────
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: fd-sqlserver
+    environment:
+      SA_PASSWORD: "YourStrong!Passw0rd"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - fooddelivery-net
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'YourStrong!Passw0rd' -Q 'SELECT 1'"]
+      interval: 10s
+      retries: 10
+      start_period: 30s
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: fd-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"   # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - fooddelivery-net
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      retries: 10
+
+  # ─────────────────────────────────────────
+  # Gateway
+  # ─────────────────────────────────────────
+  gateway:
+    build:
+      context: .
+      dockerfile: Gateway/FoodDelivery.Gateway/Dockerfile
+    container_name: fd-gateway
+    ports:
+      - "5000:8080"
+    depends_on:
+      - auth-api
+      - catalog-api
+      - order-api
+      - payment-api
+      - admin-api
+    networks:
+      - fooddelivery-net
+
+  # ─────────────────────────────────────────
+  # Auth Service
+  # ─────────────────────────────────────────
+  auth-api:
+    build:
+      context: .
+      dockerfile: Services/AuthService/AuthService.API/Dockerfile
+    container_name: fd-auth-api
+    ports:
+      - "5001:8080"
+    environment:
+      ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=AuthDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True"
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Username: guest
+      RabbitMQ__Password: guest
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - fooddelivery-net
+
+  # ─────────────────────────────────────────
+  # Catalog Service
+  # ─────────────────────────────────────────
+  catalog-api:
+    build:
+      context: .
+      dockerfile: Services/CatalogService/CatalogService.API/Dockerfile
+    container_name: fd-catalog-api
+    ports:
+      - "5002:8080"
+    environment:
+      ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=CatalogDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True"
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Username: guest
+      RabbitMQ__Password: guest
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - fooddelivery-net
+
+  # ─────────────────────────────────────────
+  # Order Service
+  # ─────────────────────────────────────────
+  order-api:
+    build:
+      context: .
+      dockerfile: Services/OrderService/OrderService.API/Dockerfile
+    container_name: fd-order-api
+    ports:
+      - "5003:8080"
+    environment:
+      ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=OrderDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True"
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Username: guest
+      RabbitMQ__Password: guest
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - fooddelivery-net
+
+  # ─────────────────────────────────────────
+  # Payment Service
+  # ─────────────────────────────────────────
+  payment-api:
+    build:
+      context: .
+      dockerfile: Services/PaymentService/PaymentService.API/Dockerfile
+    container_name: fd-payment-api
+    ports:
+      - "5004:8080"
+    environment:
+      ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=PaymentDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True"
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Username: guest
+      RabbitMQ__Password: guest
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - fooddelivery-net
+
+  # ─────────────────────────────────────────
+  # Admin Service
+  # ─────────────────────────────────────────
+  admin-api:
+    build:
+      context: .
+      dockerfile: Services/AdminService/AdminService.API/Dockerfile
+    container_name: fd-admin-api
+    ports:
+      - "5005:8080"
+    environment:
+      ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=AdminDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True"
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Username: guest
+      RabbitMQ__Password: guest
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - fooddelivery-net

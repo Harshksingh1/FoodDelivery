@@ -1,0 +1,77 @@
+{
+  "Routes": [
+    {
+      "UpstreamPathTemplate": "/gateway/auth/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "PATCH" ],
+      "DownstreamPathTemplate": "/api/auth/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+      "SwaggerKey": "authservice"
+    },
+    {
+      "UpstreamPathTemplate": "/gateway/catalog/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "PATCH" ],
+      "DownstreamPathTemplate": "/api/catalog/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5002 } ],
+      "SwaggerKey": "catalogservice"
+    },
+    {
+      "UpstreamPathTemplate": "/gateway/cart/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "DownstreamPathTemplate": "/api/cart/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5003 } ],
+      "SwaggerKey": "orderservice"
+    },
+    {
+      "UpstreamPathTemplate": "/gateway/orders/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "PATCH" ],
+      "DownstreamPathTemplate": "/api/orders/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5003 } ],
+      "SwaggerKey": "orderservice"
+    },
+    {
+      "UpstreamPathTemplate": "/gateway/payments/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT" ],
+      "DownstreamPathTemplate": "/api/payments/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5004 } ],
+      "SwaggerKey": "paymentservice"
+    },
+    {
+      "UpstreamPathTemplate": "/gateway/admin/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "PATCH" ],
+      "DownstreamPathTemplate": "/api/admin/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5005 } ],
+      "SwaggerKey": "adminservice"
+    }
+  ],
+  "SwaggerEndPoints": [
+    {
+      "Key": "authservice",
+      "Config": [ { "Name": "Auth Service", "Version": "v1", "Url": "http://localhost:5001/swagger/v1/swagger.json" } ]
+    },
+    {
+      "Key": "catalogservice",
+      "Config": [ { "Name": "Catalog Service", "Version": "v1", "Url": "http://localhost:5002/swagger/v1/swagger.json" } ]
+    },
+    {
+      "Key": "orderservice",
+      "Config": [ { "Name": "Order Service", "Version": "v1", "Url": "http://localhost:5003/swagger/v1/swagger.json" } ]
+    },
+    {
+      "Key": "paymentservice",
+      "Config": [ { "Name": "Payment Service", "Version": "v1", "Url": "http://localhost:5004/swagger/v1/swagger.json" } ]
+    },
+    {
+      "Key": "adminservice",
+      "Config": [ { "Name": "Admin Service", "Version": "v1", "Url": "http://localhost:5005/swagger/v1/swagger.json" } ]
+    }
+  ],
+  "GlobalConfiguration": {
+    "BaseUrl": "http://localhost:5000"
+  }
+}

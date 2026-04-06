@@ -1,0 +1,6 @@
+@FoodDelivery.Gateway_HostAddress = http://localhost:5226
+
+GET {{FoodDelivery.Gateway_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

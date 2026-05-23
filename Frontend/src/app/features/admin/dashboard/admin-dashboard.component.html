@@ -1,0 +1,85 @@
+<div class="max-w-6xl mx-auto px-4 py-8">
+  <h1 class="text-2xl font-bold text-dark mb-6">⚙️ Admin Dashboard</h1>
+
+  <!-- KPI Cards -->
+  @if (dashboard()) {
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+      <div class="bg-white rounded-2xl shadow-card p-5 text-center">
+        <p class="text-3xl font-bold text-primary">{{ dashboard().totalOrders }}</p>
+        <p class="text-gray-500 text-sm mt-1">Total Orders</p>
+      </div>
+      <div class="bg-white rounded-2xl shadow-card p-5 text-center">
+        <p class="text-3xl font-bold text-green-600">₹{{ dashboard().totalRevenue?.toFixed(0) }}</p>
+        <p class="text-gray-500 text-sm mt-1">Total Revenue</p>
+      </div>
+      <div class="bg-white rounded-2xl shadow-card p-5 text-center">
+        <p class="text-3xl font-bold text-blue-600">{{ dashboard().activeRestaurants }}</p>
+        <p class="text-gray-500 text-sm mt-1">Restaurants</p>
+      </div>
+      <div class="bg-white rounded-2xl shadow-card p-5 text-center">
+        <p class="text-3xl font-bold text-orange-600">{{ dashboard().totalUsers }}</p>
+        <p class="text-gray-500 text-sm mt-1">Total Users</p>
+      </div>
+    </div>
+
+    <!-- Pending approvals alert -->
+    @if (dashboard().pendingRestaurantApplications > 0 || dashboard().pendingAgentApplications > 0) {
+      <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 mb-6 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">⚠️</span>
+          <div>
+            <p class="font-semibold text-yellow-800">Pending Approvals</p>
+            <p class="text-yellow-700 text-sm">{{ dashboard().pendingRestaurantApplications }} restaurant · {{ dashboard().pendingAgentApplications }} delivery agent</p>
+          </div>
+        </div>
+        <a routerLink="/admin/approvals" class="btn-primary text-sm py-2 px-4 rounded-xl">Review Now</a>
+      </div>
+    }
+  }
+
+  <!-- Quick links -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+    @for (link of quickLinks; track link.label) {
+      <a [routerLink]="link.route" class="card p-5 flex items-center gap-4 group">
+        <span class="text-3xl">{{ link.emoji }}</span>
+        <div>
+          <p class="font-bold text-dark group-hover:text-primary transition-colors">{{ link.label }}</p>
+          <p class="text-gray-500 text-sm">{{ link.desc }}</p>
+        </div>
+      </a>
+    }
+  </div>
+
+  <!-- Sales Report -->
+  <div class="bg-white rounded-2xl shadow-card p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="font-bold text-dark text-lg">Sales Report</h2>
+      <div class="flex gap-2">
+        <input [(ngModel)]="fromDate" type="date" class="input-field text-sm py-1.5 w-36" />
+        <input [(ngModel)]="toDate" type="date" class="input-field text-sm py-1.5 w-36" />
+        <button (click)="loadSales()" class="btn-primary text-sm py-1.5 px-4 rounded-xl">Load</button>
+      </div>
+    </div>
+    @if (salesReport().length === 0) {
+      <p class="text-gray-400 text-center py-6">Select a date range to view sales</p>
+    } @else {
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead><tr class="text-left text-gray-500 border-b border-gray-100">
+            <th class="pb-2">Date</th><th class="pb-2">Orders</th><th class="pb-2">Revenue</th><th class="pb-2">GST</th>
+          </tr></thead>
+          <tbody>
+            @for (row of salesReport(); track row.date) {
+              <tr class="border-b border-gray-50 hover:bg-gray-soft">
+                <td class="py-2">{{ row.date }}</td>
+                <td class="py-2 font-medium">{{ row.orderCount }}</td>
+                <td class="py-2 font-bold text-green-600">₹{{ row.revenue }}</td>
+                <td class="py-2 text-gray-500">₹{{ row.gstCollected }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>

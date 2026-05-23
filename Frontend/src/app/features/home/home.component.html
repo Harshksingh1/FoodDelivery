@@ -1,0 +1,112 @@
+<!-- Hero Section -->
+<section class="hero-section">
+
+  <!-- Veggie image on the left -->
+  <img src="assets/Veggies_new.avif" alt="Fresh vegetables" class="hero-img hero-img--left" />
+
+  <!-- Pizza image on the right -->
+  <img src="assets/Pizza.avif" alt="Pizza" class="hero-img hero-img--right" />
+
+  <div class="hero-content">
+    <div class="hero-text">
+      <h1>Order food.<br />Discover best<br />restaurants.</h1>
+      <p>Fast delivery · Great taste · Best prices</p>
+    </div>
+
+    <!-- Search bar -->
+    <div class="search-bar">
+      <div class="search-city">
+        <span class="pin-icon">📍</span>
+        <input type="text" [(ngModel)]="city" placeholder="Enter your city" />
+      </div>
+      <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="onSearch()"
+        placeholder="Search for restaurant, item or more" class="search-query" />
+      <button (click)="onSearch()" class="btn-primary search-btn">Search</button>
+    </div>
+  </div>
+</section>
+
+<!-- Service Cards -->
+<section class="services-section">
+  <div class="services-grid">
+    @for (svc of services; track svc.title) {
+      <div class="service-card" (click)="router.navigate(['/restaurants'])">
+        <div class="service-info">
+          <h3>{{ svc.title }}</h3>
+          <p>{{ svc.subtitle }}</p>
+          <span class="offer-badge">{{ svc.offer }}</span>
+          <div class="arrow-btn">→</div>
+        </div>
+        <span class="service-emoji">{{ svc.emoji }}</span>
+      </div>
+    }
+  </div>
+</section>
+
+<!-- Cuisine Chips -->
+<section class="cuisine-section">
+  <div class="section-header">
+    <h2>Order our best food options</h2>
+    <div class="scroll-btns">
+      <button (click)="scrollCuisines(-1)">←</button>
+      <button (click)="scrollCuisines(1)">→</button>
+    </div>
+  </div>
+  <div class="cuisine-grid">
+    @for (c of cuisines; track c.name) {
+      <div class="cuisine-chip"
+        [class.active]="selectedCuisine() === c.name"
+        [class.dimmed]="selectedCuisine() && selectedCuisine() !== c.name"
+        (click)="filterByCuisine(c.name)">
+        <div class="cuisine-icon" [class.selected]="selectedCuisine() === c.name">
+          {{ c.emoji }}
+        </div>
+        <span>{{ c.name }}</span>
+      </div>
+    }
+  </div>
+</section>
+
+<!-- Restaurants -->
+<section class="restaurants-section">
+  <div class="section-header">
+    <h2>{{ selectedCuisine() ? selectedCuisine() + ' Restaurants' : 'Top Restaurants Near You' }}</h2>
+    @if (selectedCuisine()) {
+      <button class="clear-btn" (click)="selectedCuisine.set('')">Clear filter</button>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="restaurant-grid">
+      @for (i of [1,2,3,4,5,6,7,8]; track i) {
+        <div class="skeleton-card">
+          <div class="skeleton-img"></div>
+          <div class="skeleton-body">
+            <div class="skeleton-line w-3/4"></div>
+            <div class="skeleton-line w-1/2"></div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else if (restaurants().length === 0) {
+    <div class="empty-state">
+      <span>🍽️</span>
+      <p>No restaurants found</p>
+    </div>
+  } @else {
+    <div class="restaurant-grid">
+      @for (r of visibleRestaurants(); track r.id) {
+        <app-restaurant-card [restaurant]="r" />
+      }
+    </div>
+    @if (hasMore()) {
+      <div class="flex justify-center mt-8">
+        <button (click)="router.navigate(['/restaurants'])"
+          class="btn-outline px-8 py-3 rounded-xl font-semibold text-sm hover:bg-primary hover:text-white transition-colors">
+          View More Restaurants
+        </button>
+      </div>
+    }
+  }
+</section>
+ 

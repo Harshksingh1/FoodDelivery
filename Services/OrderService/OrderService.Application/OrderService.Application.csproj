@@ -11,8 +11,4 @@
     <ProjectReference Include="..\OrderService.Domain\OrderService.Domain.csproj" />
     <ProjectReference Include="..\..\Shared\FoodDelivery.Shared\FoodDelivery.Shared.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Exceptions\" />
-    <Folder Include="Interfaces\" />
-  </ItemGroup>
 </Project>

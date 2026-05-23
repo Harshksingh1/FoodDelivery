@@ -230,6 +230,15 @@ public class CatalogAppService
         return (true, $"Application {req.Status}.");
     }
 
+    public async Task<(bool Success, string Message)> RateRestaurantAsync(Guid restaurantId, int stars)
+    {
+        if (stars < 1 || stars > 5) return (false, "Rating must be between 1 and 5.");
+        var r = await _repo.GetByIdAsync(restaurantId);
+        if (r == null) return (false, "Restaurant not found.");
+        await _repo.RateRestaurantAsync(restaurantId, stars);
+        return (true, "Rating submitted.");
+    }
+
     // ── Helpers ───────────────────────────────────────────────────────────────
 
     private static async Task<string> SaveImageAsync(Stream stream, string folder, string fileName)

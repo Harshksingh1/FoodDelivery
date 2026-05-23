@@ -13,6 +13,7 @@ public interface IRestaurantRepository
     Task<List<Restaurant>> GetByOwnerAsync(Guid ownerId);
     Task<List<MenuItem>> GetMenuAsync(Guid restaurantId);
     Task<MenuItem?> GetMenuItemAsync(Guid itemId);
+    Task RateRestaurantAsync(Guid restaurantId, int stars);
 
     // Partner manage
     Task AddAsync(Restaurant restaurant);

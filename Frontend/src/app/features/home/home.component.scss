@@ -1,0 +1,321 @@
+// ── Hero ──────────────────────────────────────────────────────────────────────
+.hero-section {
+  background-color: var(--color-primary, #f97316);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-img {
+  position: absolute;
+  bottom: 0;
+  height: 115%;
+  max-height: 440px;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  display: none;
+
+  @media (min-width: 1024px) {
+    display: block;
+  }
+
+  &--left {
+    left: -40px;
+    object-position: bottom left;
+  }
+
+  &--right {
+    right: -40px;
+    object-position: bottom right;
+  }
+}
+
+.hero-content {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 4rem 1rem;
+  position: relative;
+
+  @media (min-width: 640px) {
+    padding: 6rem 1rem;
+  }
+}
+
+.hero-text {
+  text-align: center;
+  color: white;
+  margin-bottom: 2.5rem;
+
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.75rem);
+    font-weight: 800;
+    line-height: 1.15;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    color: #fed7aa;
+    font-size: 1.125rem;
+    margin-top: 0.5rem;
+  }
+}
+
+// ── Search bar ────────────────────────────────────────────────────────────────
+.search-bar {
+  max-width: 42rem;
+  margin: 0 auto;
+  display: flex;
+  gap: 0.75rem;
+  background: white;
+  border-radius: 1rem;
+  padding: 0.5rem;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+}
+
+.search-city {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 0.75rem;
+  border-right: 1px solid #e5e7eb;
+  min-width: 0;
+
+  .pin-icon { font-size: 1.125rem; color: #f97316; }
+
+  input {
+    font-size: 0.875rem;
+    color: #374151;
+    outline: none;
+    width: 7rem;
+    background: transparent;
+
+    @media (min-width: 640px) { width: 10rem; }
+  }
+}
+
+.search-query {
+  flex: 1;
+  font-size: 0.875rem;
+  color: #374151;
+  outline: none;
+  background: transparent;
+  padding: 0 0.5rem;
+}
+
+.search-btn {
+  border-radius: 0.75rem;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+// ── Service Cards ─────────────────────────────────────────────────────────────
+.services-section {
+  max-width: 80rem;
+  margin: -1.5rem auto 0;
+  padding: 0 1rem;
+  position: relative;
+  z-index: 10;
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+
+  @media (min-width: 640px) { grid-template-columns: repeat(3, 1fr); }
+}
+
+.service-card {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  transition: box-shadow 0.2s;
+
+  &:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+
+  h3 { font-size: 1.125rem; font-weight: 800; color: #1a1a1a; }
+  p  { font-size: 0.875rem; color: #6b7280; margin-top: 0.125rem; }
+}
+
+.offer-badge {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #f97316;
+}
+
+.arrow-btn {
+  margin-top: 1rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  background: #f97316;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.125rem;
+  transition: background 0.2s;
+
+  .service-card:hover & { background: #ea6c0a; }
+}
+
+.service-emoji { font-size: 3.75rem; }
+
+// ── Cuisine Chips ─────────────────────────────────────────────────────────────
+.cuisine-section {
+  max-width: 80rem;
+  margin: 3rem auto 0;
+  padding: 0 1rem;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+
+  h2 { font-size: 1.5rem; font-weight: 700; color: #1a1a1a; }
+}
+
+.scroll-btns {
+  display: flex;
+  gap: 0.5rem;
+
+  button {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    border: 1px solid #d1d5db;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    cursor: pointer;
+    background: white;
+    transition: border-color 0.2s, color 0.2s;
+
+    &:hover { border-color: #f97316; color: #f97316; }
+  }
+}
+
+.cuisine-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+
+  @media (min-width: 640px)  { grid-template-columns: repeat(6, 1fr); }
+  @media (min-width: 1024px) { grid-template-columns: repeat(12, 1fr); }
+}
+
+.cuisine-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  &.dimmed { opacity: 0.6; }
+
+  span {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #374151;
+    text-align: center;
+  }
+}
+
+.cuisine-icon {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  background: #fff7ed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.875rem;
+  border: 2px solid transparent;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  transition: transform 0.2s, border-color 0.2s;
+
+  .cuisine-chip:hover & { transform: scale(1.1); }
+  &.selected { border-color: #f97316; }
+}
+
+// ── Restaurants ───────────────────────────────────────────────────────────────
+.restaurants-section {
+  max-width: 80rem;
+  margin: 3rem auto 4rem;
+  padding: 0 1rem;
+}
+
+.clear-btn {
+  font-size: 0.875rem;
+  color: #f97316;
+  font-weight: 500;
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  &:hover { text-decoration: underline; }
+}
+
+.restaurant-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+
+  @media (min-width: 640px)  { grid-template-columns: repeat(2, 1fr); }
+  @media (min-width: 1024px) { grid-template-columns: repeat(4, 1fr); }
+}
+
+// ── Skeleton ──────────────────────────────────────────────────────────────────
+.skeleton-card {
+  background: white;
+  border-radius: 1rem;
+  overflow: hidden;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-img {
+  height: 11rem;
+  background: #e5e7eb;
+}
+
+.skeleton-body {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.skeleton-line {
+  height: 0.75rem;
+  background: #e5e7eb;
+  border-radius: 0.25rem;
+
+  &.w-3\/4 { width: 75%; }
+  &.w-1\/2  { width: 50%; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+// ── Empty state ───────────────────────────────────────────────────────────────
+.empty-state {
+  text-align: center;
+  padding: 4rem 0;
+
+  span { font-size: 3.75rem; }
+  p    { color: #6b7280; margin-top: 1rem; font-size: 1.125rem; }
+}

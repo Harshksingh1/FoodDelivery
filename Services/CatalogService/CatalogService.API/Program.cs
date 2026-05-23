@@ -1,5 +1,5 @@
+using FoodDelivery.Shared.Middleware;
 using System.Text;
-using CatalogService.API.Middleware;
 using CatalogService.Application.Services;
 using CatalogService.Domain.Interfaces;
 using CatalogService.Infrastructure.Persistence;
@@ -58,12 +58,13 @@ using (var scope = app.Services.CreateScope())
     if (db.Database.GetPendingMigrations().Any()) db.Database.Migrate();
 }
 
-app.UseMiddleware<ExceptionMiddleware>();
+app.UseMiddleware<GlobalExceptionMiddleware>();
 if (app.Environment.IsDevelopment()) { app.UseSwagger(); app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "Catalog Service v1"); c.DocumentTitle = "Catalog Service"; }); }
 app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
+
 
 

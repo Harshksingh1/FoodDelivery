@@ -27,7 +27,7 @@ public class EmailService : IEmailService
             IsBodyHtml = true
         };
         mail.To.Add(toEmail);
-        await client.SendMailAsync(mail);
+     await client.SendMailAsync(mail);
     }
 
     public Task SendOtpAsync(string toEmail, string fullName, string otp)

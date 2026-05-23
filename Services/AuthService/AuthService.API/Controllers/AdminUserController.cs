@@ -36,6 +36,18 @@ public class AdminUserController : ControllerBase
         return Ok(users);
     }
 
+    [HttpGet("delivery-agents/approved")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetApprovedDeliveryAgents()
+    {
+        // Partners need this to assign agents — returns only active agents
+        var users = await _db.Users
+            .Where(u => u.Role == UserRole.DeliveryAgent && u.IsActive)
+            .Select(u => new { u.Id, u.FullName, u.Mobile })
+            .ToListAsync();
+        return Ok(users);
+    }
+
     [HttpGet("restaurant-partners")]
     public async Task<IActionResult> GetRestaurantPartners()
     {

@@ -1,0 +1,106 @@
+
+<div class="max-w-7xl mx-auto px-4 py-8">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-dark">{{ title() }}</h1>
+      <p class="text-gray-500 text-sm mt-1">
+        {{ menuItems().length > 0 ? menuItems().length + ' dishes' : '' }}
+        {{ menuItems().length > 0 && restaurants().length > 0 ? ' · ' : '' }}
+        {{ restaurants().length > 0 ? restaurants().length + ' restaurants' : '' }}
+        {{ menuItems().length === 0 && restaurants().length === 0 ? 'No results' : '' }} found
+      </p>
+    </div>
+
+    <!-- Filters -->
+    <div class="flex flex-wrap gap-2">
+      <button (click)="toggleFilter('veg')"
+        class="px-4 py-2 rounded-full text-sm font-medium border-2 transition-all"
+        [class.border-green-500]="filters.veg" [class.bg-green-50]="filters.veg" [class.text-green-700]="filters.veg"
+        [class.border-gray-200]="!filters.veg" [class.text-gray-600]="!filters.veg">
+        🥦 Veg Only
+      </button>
+      <button (click)="toggleFilter('open')"
+        class="px-4 py-2 rounded-full text-sm font-medium border-2 transition-all"
+        [class.border-primary]="filters.open" [class.bg-orange-50]="filters.open" [class.text-primary]="filters.open"
+        [class.border-gray-200]="!filters.open" [class.text-gray-600]="!filters.open">
+        🟢 Open Now
+      </button>
+      <select [(ngModel)]="sortBy" (change)="applySort()"
+        class="px-4 py-2 rounded-full text-sm font-medium border-2 border-gray-200 text-gray-600 focus:outline-none focus:border-primary bg-white">
+        <option value="">Sort By</option>
+        <option value="rating">Rating</option>
+        <option value="time">Delivery Time</option>
+      </select>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      @for (i of [1,2,3,4,5,6,7,8]; track i) {
+        <div class="card animate-pulse">
+          <div class="h-44 bg-gray-200 rounded-t-2xl"></div>
+          <div class="p-4 space-y-2">
+            <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+            <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+
+    <!-- Menu Items section -->
+    @if (menuItems().length > 0) {
+      <div class="mb-10">
+        <h2 class="text-xl font-bold text-dark mb-4">🍽️ Dishes ({{ menuItems().length }})</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          @for (item of menuItems(); track item.id) {
+            <a [routerLink]="['/restaurants', item.restaurantId]"
+              class="bg-white rounded-2xl shadow-card p-4 flex gap-4 hover:shadow-card-hover transition-shadow cursor-pointer">
+              @if (item.imageUrl) {
+                <img [src]="catalogUrl + item.imageUrl" [alt]="item.name" class="w-20 h-20 rounded-xl object-cover flex-shrink-0" />
+              } @else {
+                <div class="w-20 h-20 rounded-xl bg-orange-50 flex items-center justify-center flex-shrink-0 text-3xl">🍴</div>
+              }
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                  <p class="font-semibold text-dark truncate">{{ item.name }}</p>
+                  <span class="text-xs px-1.5 py-0.5 rounded flex-shrink-0" [class.bg-green-100]="item.isVeg" [class.text-green-700]="item.isVeg" [class.bg-red-100]="!item.isVeg" [class.text-red-700]="!item.isVeg">
+                    {{ item.isVeg ? '🟢 Veg' : '🔴 Non-veg' }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 truncate mb-2">{{ item.description }}</p>
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-dark">₹{{ item.price }}</span>
+                  <span class="text-xs text-gray-400">{{ item.restaurantName }}</span>
+                </div>
+              </div>
+            </a>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Restaurants section -->
+    @if (filtered().length > 0) {
+      <div>
+        @if (menuItems().length > 0) {
+          <h2 class="text-xl font-bold text-dark mb-4">🏪 Restaurants ({{ filtered().length }})</h2>
+        }
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          @for (r of filtered(); track r.id) {
+            <app-restaurant-card [restaurant]="r" />
+          }
+        </div>
+      </div>
+    }
+
+    @if (filtered().length === 0 && menuItems().length === 0) {
+      <div class="text-center py-20">
+        <span class="text-7xl">🍽️</span>
+        <h3 class="text-xl font-semibold text-dark mt-4">No results found</h3>
+        <p class="text-gray-500 mt-2">Try a different search term or adjust your filters</p>
+      </div>
+    }
+  }
+</div>

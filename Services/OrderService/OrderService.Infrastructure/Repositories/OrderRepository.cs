@@ -54,6 +54,15 @@ public class OrderRepository : IOrderRepository
             Guid.NewGuid(), orderId, newStatus.ToString(), note ?? "", changedBy, DateTime.UtcNow);
     }
 
+    public async Task AssignDeliveryAgentAsync(Guid orderId, Guid agentId)
+    {
+        await _db.Orders
+            .Where(o => o.Id == orderId)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(o => o.DeliveryAgentId, agentId)
+                .SetProperty(o => o.UpdatedAt, DateTime.UtcNow));
+    }
+
     public Task SaveChangesAsync() => _db.SaveChangesAsync();
 }
 
@@ -68,6 +77,32 @@ public class CartRepository : ICartRepository
     public async Task AddAsync(Cart cart) => await _db.Carts.AddAsync(cart);
 
     public async Task AddCartItemAsync(CartItem item) => await _db.CartItems.AddAsync(item);
+
+    public async Task AddCartItemDirectAsync(CartItem item)
+    {
+        await _db.Database.ExecuteSqlRawAsync(
+            "INSERT INTO CartItems (Id, CartId, MenuItemId, Name, UnitPrice, Quantity) VALUES ({0}, {1}, {2}, {3}, {4}, {5})",
+            item.Id, item.CartId, item.MenuItemId, item.Name, item.UnitPrice, item.Quantity);
+    }
+
+    public async Task UpdateCartItemQuantityAsync(Guid itemId, int newQuantity)
+    {
+        await _db.CartItems
+            .Where(i => i.Id == itemId)
+            .ExecuteUpdateAsync(s => s.SetProperty(i => i.Quantity, newQuantity));
+    }
+
+    public async Task UpdateCartTimestampAsync(Guid cartId)
+    {
+        await _db.Carts
+            .Where(c => c.Id == cartId)
+            .ExecuteUpdateAsync(s => s.SetProperty(c => c.UpdatedAt, DateTime.UtcNow));
+    }
+
+    public async Task DeleteCartItemAsync(Guid itemId)
+    {
+        await _db.CartItems.Where(i => i.Id == itemId).ExecuteDeleteAsync();
+    }
 
     public Task UpdateAsync(Cart cart)
     {

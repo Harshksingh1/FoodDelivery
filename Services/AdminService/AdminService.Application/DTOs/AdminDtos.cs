@@ -34,10 +34,28 @@ public class PartnerReportDto
 public class OrderSummaryDto
 {
     public Guid Id { get; set; }
+    public Guid RestaurantId { get; set; }
+    public string RestaurantName { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
     public decimal TotalAmount { get; set; }
     public decimal GstAmount { get; set; }
     public DateTime CreatedAt { get; set; }
+}
+
+public class RestaurantRevenueDayDto
+{
+    public string Date { get; set; } = string.Empty;
+    public int OrderCount { get; set; }
+    public decimal Revenue { get; set; }
+}
+
+public class RestaurantRevenueDto
+{
+    public Guid RestaurantId { get; set; }
+    public string RestaurantName { get; set; } = string.Empty;
+    public int TotalOrders { get; set; }
+    public decimal TotalRevenue { get; set; }
+    public List<RestaurantRevenueDayDto> DailyBreakdown { get; set; } = [];
 }
 
 public class RestaurantSummaryDto

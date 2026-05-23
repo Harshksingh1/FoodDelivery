@@ -1,4 +1,5 @@
 using CatalogService.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CatalogService.API.Controllers;
@@ -34,4 +35,14 @@ public class CatalogController : ControllerBase
     [HttpGet("restaurants/{restaurantId:guid}/menu")]
     public async Task<IActionResult> GetMenu(Guid restaurantId)
         => Ok(await _svc.GetMenuAsync(restaurantId));
+
+    [HttpPost("restaurants/{restaurantId:guid}/rate")]
+    [Authorize]
+    public async Task<IActionResult> RateRestaurant(Guid restaurantId, [FromBody] RateRequest req)
+    {
+        var (success, message) = await _svc.RateRestaurantAsync(restaurantId, req.Stars);
+        return success ? Ok(new { message }) : BadRequest(new { message });
+    }
 }
+
+public record RateRequest(int Stars);

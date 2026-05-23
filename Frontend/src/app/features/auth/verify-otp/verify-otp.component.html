@@ -1,0 +1,37 @@
+<div class="min-h-screen bg-gray-soft flex items-center justify-center px-4">
+  <div class="w-full max-w-md">
+    <div class="bg-white rounded-3xl shadow-card p-8 text-center">
+      <div class="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <span class="text-3xl">📧</span>
+      </div>
+      <h1 class="text-2xl font-bold text-dark">Verify your email</h1>
+      <p class="text-gray-500 text-sm mt-2">We sent a 6-digit OTP to your email. Enter it below.</p>
+
+      <div class="flex justify-center gap-3 mt-8">
+        @for (i of [0,1,2,3,4,5]; track i) {
+          <input type="text" maxlength="1"
+            [id]="'otp-' + i"
+            [(ngModel)]="otpDigits[i]"
+            (input)="onInput(i, $event)"
+            (keydown.backspace)="onBackspace(i)"
+            class="w-12 h-14 text-center text-xl font-bold border-2 rounded-xl focus:outline-none focus:border-primary transition-colors"
+            [class.border-primary]="otpDigits[i]"
+            [class.border-gray-200]="!otpDigits[i]" />
+        }
+      </div>
+
+      @if (error()) {
+        <div class="mt-4 bg-red-50 text-red-600 text-sm px-4 py-3 rounded-xl">⚠️ {{ error() }}</div>
+      }
+
+      <button (click)="onVerify()" [disabled]="loading() || otp().length < 6"
+        class="w-full btn-primary py-3 text-base rounded-xl mt-6 disabled:opacity-60">
+        {{ loading() ? 'Verifying...' : 'Verify OTP' }}
+      </button>
+
+      <p class="text-sm text-gray-500 mt-4">
+        Didn't receive? <button class="text-primary font-medium hover:underline">Resend OTP</button>
+      </p>
+    </div>
+  </div>
+</div>

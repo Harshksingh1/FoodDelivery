@@ -43,13 +43,13 @@ public class AdminAppService
                 .GetFromJsonAsync<List<OrderSummaryDto>>("/api/orders", _json) ?? [];
             dashboard.TotalOrders = orders.Count;
             dashboard.TotalRevenue = orders
-                .Where(o => o.Status != "Cancelled" && o.Status != "PaymentFailed")
+                .Where(o => o.Status == "Delivered")
                 .Sum(o => o.TotalAmount);
             var today = DateTime.UtcNow.Date;
             var todayOrders = orders.Where(o => o.CreatedAt.Date == today).ToList();
             dashboard.TodayOrders = todayOrders.Count;
             dashboard.TodayRevenue = todayOrders
-                .Where(o => o.Status != "Cancelled" && o.Status != "PaymentFailed")
+                .Where(o => o.Status == "Delivered")
                 .Sum(o => o.TotalAmount);
         }
         catch (Exception ex) { _logger.LogWarning(ex, "Could not fetch orders"); }
@@ -104,7 +104,7 @@ public class AdminAppService
 
             return orders
                 .Where(o => o.CreatedAt.Date >= from.Date && o.CreatedAt.Date <= to.Date
-                         && o.Status != "Cancelled" && o.Status != "PaymentFailed")
+                         && o.Status == "Delivered")
                 .GroupBy(o => o.CreatedAt.Date)
                 .OrderBy(g => g.Key)
                 .Select(g => new SalesReportDto
@@ -119,6 +119,44 @@ public class AdminAppService
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Could not fetch sales report");
+            return [];
+        }
+    }
+
+    public async Task<List<RestaurantRevenueDto>> GetRestaurantRevenueReportAsync(DateTime from, DateTime to)
+    {
+        try
+        {
+            var orders = await CreateClient("OrderService")
+                .GetFromJsonAsync<List<OrderSummaryDto>>("/api/orders", _json) ?? [];
+
+            return orders
+                .Where(o => o.Status == "Delivered" &&
+                            o.CreatedAt.Date >= from.Date &&
+                            o.CreatedAt.Date <= to.Date)
+                .GroupBy(o => new { o.RestaurantId, o.RestaurantName })
+                .Select(g => new RestaurantRevenueDto
+                {
+                    RestaurantId = g.Key.RestaurantId,
+                    RestaurantName = g.Key.RestaurantName,
+                    TotalOrders = g.Count(),
+                    TotalRevenue = g.Sum(o => o.TotalAmount),
+                    DailyBreakdown = g
+                        .GroupBy(o => o.CreatedAt.Date)
+                        .OrderBy(d => d.Key)
+                        .Select(d => new RestaurantRevenueDayDto
+                        {
+                            Date = d.Key.ToString("yyyy-MM-dd"),
+                            OrderCount = d.Count(),
+                            Revenue = d.Sum(o => o.TotalAmount)
+                        }).ToList()
+                })
+                .OrderByDescending(r => r.TotalRevenue)
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Could not fetch restaurant revenue report");
             return [];
         }
     }

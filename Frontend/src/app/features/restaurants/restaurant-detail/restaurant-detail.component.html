@@ -1,0 +1,109 @@
+
+@if (loading()) {
+  <div class="max-w-4xl mx-auto px-4 py-8 animate-pulse space-y-4">
+    <div class="h-64 bg-gray-200 rounded-2xl"></div>
+    <div class="h-8 bg-gray-200 rounded w-1/2"></div>
+    <div class="h-4 bg-gray-200 rounded w-1/3"></div>
+  </div>
+} @else if (restaurant()) {
+  <!-- Hero -->
+  <div class="relative h-64 bg-gradient-to-br from-orange-100 to-orange-50 overflow-hidden">
+    @if (restaurant()!.imageUrl) {
+      <img [src]="catalogUrl + restaurant()!.imageUrl" [alt]="restaurant()!.name" class="w-full h-full object-cover" />
+    } @else {
+      <div class="w-full h-full flex items-center justify-center text-8xl">🍽️</div>
+    }
+    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+    <div class="absolute bottom-6 left-6 text-white">
+      <h1 class="text-3xl font-bold">{{ restaurant()!.name }}</h1>
+      <p class="text-orange-200 mt-1">{{ restaurant()!.cuisineType }}</p>
+    </div>
+  </div>
+
+  <div class="max-w-4xl mx-auto px-4 py-6">
+    <!-- Info bar -->
+    <div class="flex flex-wrap gap-4 mb-8 p-4 bg-gray-soft rounded-2xl">
+      <div class="flex items-center gap-2">
+        <span class="bg-green-500 text-white text-sm px-2 py-0.5 rounded font-semibold">⭐ {{ restaurant()!.rating.toFixed(1) }}</span>
+      </div>
+      <div class="flex items-center gap-1 text-sm text-gray-600">
+        <span>⏱️</span> {{ restaurant()!.prepTimeMinutes }} mins
+      </div>
+      <div class="flex items-center gap-1 text-sm text-gray-600">
+        <span>📍</span> {{ restaurant()!.address }}, {{ restaurant()!.city }}
+      </div>
+      <div class="ml-auto">
+        <span class="px-3 py-1 rounded-full text-sm font-medium"
+          [class.bg-green-100]="restaurant()!.isOpen" [class.text-green-700]="restaurant()!.isOpen"
+          [class.bg-red-100]="!restaurant()!.isOpen" [class.text-red-700]="!restaurant()!.isOpen">
+          {{ restaurant()!.isOpen ? '🟢 Open' : '🔴 Closed' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Menu -->
+    <h2 class="text-xl font-bold text-dark mb-4">Menu</h2>
+
+    @if (menu().length === 0) {
+      <div class="text-center py-12 text-gray-400">No menu items available</div>
+    } @else {
+      <div class="space-y-3">
+        @for (item of menu(); track item.id) {
+          <div class="bg-white border border-gray-100 rounded-2xl p-4 flex items-center gap-4 hover:shadow-card transition-shadow">
+            <!-- Veg/Non-veg indicator -->
+            <div class="w-5 h-5 border-2 rounded flex items-center justify-center flex-shrink-0"
+              [class.border-green-500]="item.isVeg" [class.border-red-500]="!item.isVeg">
+              <div class="w-2.5 h-2.5 rounded-full"
+                [class.bg-green-500]="item.isVeg" [class.bg-red-500]="!item.isVeg"></div>
+            </div>
+
+            <!-- Image -->
+            <div class="w-20 h-20 rounded-xl overflow-hidden bg-orange-50 flex-shrink-0">
+              @if (item.imageUrl) {
+                <img [src]="catalogUrl + item.imageUrl" [alt]="item.name" class="w-full h-full object-cover" />
+              } @else {
+                <div class="w-full h-full flex items-center justify-center text-3xl">🍽️</div>
+              }
+            </div>
+
+            <!-- Details -->
+            <div class="flex-1 min-w-0">
+              <h3 class="font-semibold text-dark">{{ item.name }}</h3>
+              <p class="text-gray-500 text-sm mt-0.5 line-clamp-2">{{ item.description }}</p>
+              <p class="font-bold text-dark mt-1">₹{{ item.price }}</p>
+            </div>
+
+            <!-- Add button -->
+            <div class="flex-shrink-0">
+              @if (!getQty(item.id)) {
+                <button (click)="addToCart(item)"
+                  [disabled]="!restaurant()!.isOpen || !item.isAvailable"
+                  class="px-5 py-2 border-2 border-primary text-primary font-semibold rounded-xl hover:bg-primary hover:text-white transition-all text-sm disabled:opacity-40 disabled:cursor-not-allowed">
+                  ADD
+                </button>
+              } @else {
+                <div class="flex items-center gap-2 border-2 border-primary rounded-xl overflow-hidden">
+                  <button (click)="updateQty(item, -1)" class="px-3 py-2 text-primary font-bold hover:bg-orange-50 transition-colors">−</button>
+                  <span class="text-primary font-bold min-w-[1.5rem] text-center">{{ getQty(item.id) }}</span>
+                  <button (click)="updateQty(item, 1)" class="px-3 py-2 text-primary font-bold hover:bg-orange-50 transition-colors">+</button>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Sticky cart bar -->
+  @if (cartService.itemCount() > 0) {
+    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+      <button (click)="router.navigate(['/customer/cart'])"
+        class="bg-primary text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-4 hover:bg-primary-dark transition-colors">
+        <span class="bg-white/20 px-2 py-0.5 rounded-lg font-bold">{{ cartService.itemCount() }}</span>
+        <span class="font-semibold">View Cart</span>
+        <span class="font-bold">₹{{ cartService.total() }}</span>
+      </button>
+    </div>
+  }
+}

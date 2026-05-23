@@ -1,10 +1,10 @@
+using FoodDelivery.Shared.Middleware;
 using System.Text;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using OrderService.API.Middleware;
 using OrderService.Application.Services;
 using OrderService.Domain.Interfaces;
 using OrderService.Infrastructure.Consumers;
@@ -85,11 +85,12 @@ using (var scope = app.Services.CreateScope())
     if (db.Database.GetPendingMigrations().Any()) db.Database.Migrate();
 }
 
-app.UseMiddleware<ExceptionMiddleware>();
+app.UseMiddleware<GlobalExceptionMiddleware>();
 if (app.Environment.IsDevelopment()) { app.UseSwagger(); app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "Order Service v1"); c.DocumentTitle = "Order Service"; }); }
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
+
 
 

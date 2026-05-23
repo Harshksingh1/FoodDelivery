@@ -1,15 +1,16 @@
-using System.Security.Claims;
 using AuthService.Application.DTOs;
 using AuthService.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace AuthService.API.Controllers;
 
 [ApiController]
 [Route("api/auth")]
 public class AuthController : ControllerBase
-{
+{ 
     private readonly IAuthAppService _authService;
 
     public AuthController(IAuthAppService authService) => _authService = authService;
@@ -91,15 +92,5 @@ public class AuthController : ControllerBase
         var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var (success, message) = await _authService.UpdateProfileAsync(userId, request);
         return success ? Ok(new { message }) : BadRequest(new { message });
-    }
-
-    [HttpPost("profile/image")]
-    [Authorize]
-    public async Task<IActionResult> UploadProfileImage(IFormFile file)
-    {
-        if (file == null || file.Length == 0) return BadRequest(new { message = "No file provided." });
-        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        var (success, message, imageUrl) = await _authService.UploadProfileImageAsync(userId, file.OpenReadStream(), file.FileName);
-        return success ? Ok(new { message, imageUrl }) : BadRequest(new { message });
     }
 }

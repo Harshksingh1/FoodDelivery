@@ -1,0 +1,103 @@
+
+<nav class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-100">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+
+      <!-- Logo — Admin goes to dashboard, others go home -->
+      <a [routerLink]="logoLink()" class="flex items-center gap-2 flex-shrink-0">
+        <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
+          <span class="text-white text-xl">🍔</span>
+        </div>
+        <span class="font-bold text-xl text-dark hidden sm:block">FoodDelivery</span>
+      </a>
+
+      <!-- Admin quick nav links -->
+      @if (auth.role() === 'Admin') {
+        <div class="flex-1 flex items-center justify-center gap-4 hidden md:flex">
+          <a routerLink="/admin/dashboard" routerLinkActive="text-primary font-semibold"
+            class="text-sm text-gray-600 hover:text-primary transition-colors">Dashboard</a>
+          <a routerLink="/admin/users" routerLinkActive="text-primary font-semibold"
+            class="text-sm text-gray-600 hover:text-primary transition-colors">Users</a>
+          <a routerLink="/admin/approvals" routerLinkActive="text-primary font-semibold"
+            class="text-sm text-gray-600 hover:text-primary transition-colors">Approvals</a>
+          <a routerLink="/admin/partner-report" routerLinkActive="text-primary font-semibold"
+            class="text-sm text-gray-600 hover:text-primary transition-colors">Partner Report</a>
+          <a routerLink="/admin/revenue-report" routerLinkActive="text-primary font-semibold"
+            class="text-sm text-gray-600 hover:text-primary transition-colors">Revenue</a>
+        </div>
+      }
+
+      <!-- Right actions -->
+      <div class="flex items-center gap-1 sm:gap-3">
+        @if (!auth.isLoggedIn()) {
+          <a routerLink="/auth/login" class="text-sm font-semibold text-dark hover:text-primary transition-colors px-3 py-2">Sign In</a>
+          <a routerLink="/auth/register" class="btn-primary text-sm py-2 px-4 hidden sm:block">Sign Up</a>
+        } @else {
+          <!-- Role badge -->
+          <span class="badge text-xs px-2 py-1 rounded-full font-medium hidden sm:inline-flex" [class]="roleBadgeClass()">
+            {{ auth.role() }}
+          </span>
+
+          <!-- Cart — Customer only, never Admin -->
+          @if (auth.role() === 'Customer') {
+            <a routerLink="/customer/cart" class="relative p-2 hover:bg-gray-50 rounded-xl transition-colors">
+              <span class="text-xl">🛒</span>
+              @if (cart.itemCount() > 0) {
+                <span class="absolute -top-1 -right-1 bg-primary text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
+                  {{ cart.itemCount() }}
+                </span>
+              }
+            </a>
+          }
+
+          <!-- Dashboard link — non-admin only (admin has inline nav) -->
+          @if (auth.role() !== 'Admin') {
+            <a [routerLink]="dashboardLink()" class="text-sm font-medium text-gray-600 hover:text-primary transition-colors hidden sm:block px-2 py-2">
+              Dashboard
+            </a>
+          }
+
+          <!-- User menu -->
+          <div class="relative">
+            <button (click)="menuOpen.set(!menuOpen())" class="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-xl transition-colors">
+              <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                {{ auth.user()?.fullName?.charAt(0)?.toUpperCase() }}
+              </div>
+            </button>
+            @if (menuOpen()) {
+              <div class="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-card-hover border border-gray-100 py-2 z-50">
+                <div class="px-4 py-2 border-b border-gray-100">
+                  <p class="font-semibold text-sm text-dark">{{ auth.user()?.fullName }}</p>
+                  <p class="text-xs text-gray-500">{{ auth.user()?.email }}</p>
+                </div>
+
+                @if (auth.role() === 'Customer') {
+                  <a routerLink="/customer/profile" (click)="menuOpen.set(false)" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50 transition-colors">👤 Profile</a>
+                  <a routerLink="/customer/orders" (click)="menuOpen.set(false)" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50 transition-colors">📦 My Orders</a>
+                }
+                @if (auth.role() === 'RestaurantPartner') {
+                  <a routerLink="/partner/profile" (click)="menuOpen.set(false)" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50 transition-colors">👤 Profile</a>
+                  <a routerLink="/partner/restaurants" (click)="menuOpen.set(false)" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50 transition-colors">🏪 My Restaurants</a>
+                  <a routerLink="/partner/orders" (click)="menuOpen.set(false)" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50 transition-colors">📋 Orders</a>
+                }
+                @if (auth.role() === 'DeliveryAgent') {
+                  <a routerLink="/delivery/profile" (click)="menuOpen.set(false)" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50 transition-colors">👤 Profile</a>
+                }
+                @if (auth.role() === 'Admin') {
+                  <a routerLink="/admin/dashboard" (click)="menuOpen.set(false)" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50 transition-colors">⚙️ Dashboard</a>
+                  <a routerLink="/admin/profile" (click)="menuOpen.set(false)" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50 transition-colors">👤 Profile</a>
+                }
+
+                <div class="border-t border-gray-100 mt-1 pt-1">
+                  <button (click)="onLogout()" class="flex items-center gap-2 px-4 py-2 text-sm text-red-500 hover:bg-red-50 transition-colors w-full text-left">
+                    🚪 Logout
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</nav>

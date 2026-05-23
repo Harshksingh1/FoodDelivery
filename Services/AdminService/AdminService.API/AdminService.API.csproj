@@ -10,10 +10,8 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AdminService.Application\AdminService.Application.csproj" />
+    <ProjectReference Include="..\..\Shared\FoodDelivery.Shared\FoodDelivery.Shared.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Middleware\" />
-    </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />

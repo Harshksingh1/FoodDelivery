@@ -60,11 +60,13 @@ public class OrderAppService
             var existing = cart.Items.FirstOrDefault(i => i.MenuItemId == req.MenuItemId);
             if (existing != null)
             {
-                existing.Quantity += req.Quantity;
+                // Update quantity via direct SQL — no EF tracking conflict
+                await _cartRepo.UpdateCartItemQuantityAsync(existing.Id, existing.Quantity + req.Quantity);
             }
             else
             {
-                cart.Items.Add(new CartItem
+                // Insert new item via direct SQL — no EF tracking conflict
+                await _cartRepo.AddCartItemDirectAsync(new CartItem
                 {
                     Id = Guid.NewGuid(),
                     CartId = cart.Id,
@@ -74,8 +76,7 @@ public class OrderAppService
                     Quantity = req.Quantity
                 });
             }
-            cart.UpdatedAt = DateTime.UtcNow;
-            await _cartRepo.SaveChangesAsync();
+            await _cartRepo.UpdateCartTimestampAsync(cart.Id);
         }
 
         return (await _cartRepo.GetByCustomerAsync(customerId))!;
@@ -90,10 +91,13 @@ public class OrderAppService
         if (cart == null) return;
         var item = cart.Items.FirstOrDefault(i => i.MenuItemId == menuItemId);
         if (item == null) return;
-        if (quantity <= 0) cart.Items.Remove(item);
-        else item.Quantity = quantity;
-        cart.UpdatedAt = DateTime.UtcNow;
-        await _cartRepo.SaveChangesAsync();
+        if (quantity <= 0)
+            await _cartRepo.DeleteCartItemAsync(item.Id);
+        else
+        {
+            await _cartRepo.UpdateCartItemQuantityAsync(item.Id, quantity);
+            await _cartRepo.UpdateCartTimestampAsync(cart.Id);
+        }
     }
 
     public async Task ClearCartAsync(Guid customerId)
@@ -120,6 +124,8 @@ public class OrderAppService
             CustomerId = customerId,
             RestaurantId = cart.RestaurantId,
             RestaurantName = cart.RestaurantName,
+            CustomerName = req.CustomerName,
+            CustomerMobile = req.CustomerMobile,
             Status = OrderStatus.PaymentPending,
             DeliveryAddress = req.DeliveryAddress,
             DeliveryInstructions = req.DeliveryInstructions,
@@ -159,18 +165,8 @@ public class OrderAppService
             order.Status != OrderStatus.RestaurantAccepted && order.Status != OrderStatus.Preparing)
             return (false, $"Cannot assign agent to order in status '{order.Status}'.");
 
-        order.DeliveryAgentId = agentId;
-        order.UpdatedAt = DateTime.UtcNow;
-        order.StatusHistory.Add(new OrderStatusHistory
-        {
-            OrderId = orderId,
-            Status = order.Status,
-            Note = $"Delivery agent {agentId} assigned.",
-            ChangedBy = assignedBy
-        });
-
-        await _orderRepo.UpdateAsync(order);
-        await _orderRepo.SaveChangesAsync();
+        await _orderRepo.UpdateStatusAsync(orderId, order.Status, assignedBy, $"Delivery agent {agentId} assigned.");
+        await _orderRepo.AssignDeliveryAgentAsync(orderId, agentId);
 
         await _bus.Publish(new FoodDelivery.Shared.Events.DeliveryAssignedEvent(orderId, agentId, DateTime.UtcNow));
 
@@ -242,7 +238,8 @@ public class OrderAppService
     private static OrderDto MapOrder(Order o) => new()
     {
         Id = o.Id, CustomerId = o.CustomerId, RestaurantId = o.RestaurantId,
-        RestaurantName = o.RestaurantName, Status = o.Status.ToString(),
+        RestaurantName = o.RestaurantName, CustomerName = o.CustomerName,
+        CustomerMobile = o.CustomerMobile, Status = o.Status.ToString(),
         DeliveryAddress = o.DeliveryAddress, SubTotal = o.SubTotal,
         DiscountAmount = o.DiscountAmount, DeliveryFee = o.DeliveryFee,
         GstAmount = o.GstAmount, TotalAmount = o.TotalAmount,

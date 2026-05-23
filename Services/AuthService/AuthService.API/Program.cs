@@ -1,5 +1,5 @@
 using System.Text;
-using AuthService.API.Middleware;
+using FoodDelivery.Shared.Middleware;
 using AuthService.Application.Interfaces;
 using AuthService.Application.Services;
 using AuthService.Domain.Entities;
@@ -109,7 +109,7 @@ using (var scope = app.Services.CreateScope())
     await SeedAdminAsync(scope.ServiceProvider);
 }
 
-app.UseMiddleware<ExceptionMiddleware>();
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {

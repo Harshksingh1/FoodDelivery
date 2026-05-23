@@ -20,6 +20,8 @@ public class UpdateCartItemRequest
 
 public class CheckoutRequest
 {
+    [Required] public string CustomerName { get; set; } = string.Empty;
+    [Required] public string CustomerMobile { get; set; } = string.Empty;
     [Required] public string DeliveryAddress { get; set; } = string.Empty;
     public string? DeliveryInstructions { get; set; }
     public string? PromoCode { get; set; }
@@ -43,6 +45,8 @@ public class OrderDto
     public Guid CustomerId { get; set; }
     public Guid RestaurantId { get; set; }
     public string RestaurantName { get; set; } = string.Empty;
+    public string CustomerName { get; set; } = string.Empty;
+    public string CustomerMobile { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
     public string DeliveryAddress { get; set; } = string.Empty;
     public decimal SubTotal { get; set; }

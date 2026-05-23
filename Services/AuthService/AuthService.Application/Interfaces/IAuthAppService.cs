@@ -14,5 +14,4 @@ public interface IAuthAppService
     Task<(bool Success, string Message)> ChangePasswordAsync(Guid userId, ChangePasswordRequest request);
     Task<(bool Success, string Message, ProfileResponse? Data)> GetProfileAsync(Guid userId);
     Task<(bool Success, string Message)> UpdateProfileAsync(Guid userId, UpdateProfileRequest request);
-    Task<(bool Success, string Message, string? ImageUrl)> UploadProfileImageAsync(Guid userId, Stream imageStream, string fileName);
 }

@@ -101,5 +101,15 @@ public class RestaurantRepository : IRestaurantRepository
         return Task.CompletedTask;
     }
 
+    public async Task RateRestaurantAsync(Guid restaurantId, int stars)
+    {
+        await _db.Restaurants
+            .Where(r => r.Id == restaurantId)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(r => r.TotalRatings, r => r.TotalRatings + 1)
+                .SetProperty(r => r.Rating, r => (r.Rating * r.TotalRatings + stars) / (r.TotalRatings + 1))
+                .SetProperty(r => r.UpdatedAt, DateTime.UtcNow));
+    }
+
     public Task SaveChangesAsync() => _db.SaveChangesAsync();
 }

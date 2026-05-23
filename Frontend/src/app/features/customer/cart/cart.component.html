@@ -1,0 +1,70 @@
+<div class="max-w-2xl mx-auto px-4 py-8">
+  <h1 class="text-2xl font-bold text-dark mb-6">🛒 Your Cart</h1>
+
+  @if (loading()) {
+    <div class="space-y-3">
+      @for (i of [1,2,3]; track i) {
+        <div class="bg-white rounded-2xl p-4 animate-pulse flex gap-4">
+          <div class="w-16 h-16 bg-gray-200 rounded-xl"></div>
+          <div class="flex-1 space-y-2"><div class="h-4 bg-gray-200 rounded w-3/4"></div><div class="h-3 bg-gray-200 rounded w-1/2"></div></div>
+        </div>
+      }
+    </div>
+  } @else if (!cart.cart() || cart.cart()!.items.length === 0) {
+    <div class="text-center py-20">
+      <span class="text-7xl">🛒</span>
+      <h3 class="text-xl font-semibold text-dark mt-4">Your cart is empty</h3>
+      <p class="text-gray-500 mt-2">Add items from a restaurant to get started</p>
+      <a routerLink="/restaurants" class="btn-primary inline-block mt-6 rounded-xl px-6 py-3">Browse Restaurants</a>
+    </div>
+  } @else {
+    <!-- Restaurant name -->
+    <div class="bg-orange-50 border border-orange-200 rounded-2xl px-4 py-3 mb-4 flex items-center gap-2">
+      <span class="text-primary">🍴</span>
+      <span class="font-semibold text-dark">{{ cart.cart()!.restaurantName }}</span>
+    </div>
+
+    <!-- Items -->
+    <div class="space-y-3 mb-6">
+      @for (item of cart.cart()!.items; track item.id) {
+        <div class="bg-white rounded-2xl shadow-card p-4 flex items-center gap-4">
+          <div class="w-14 h-14 bg-orange-50 rounded-xl flex items-center justify-center text-2xl flex-shrink-0">🍽️</div>
+          <div class="flex-1 min-w-0">
+            <p class="font-semibold text-dark truncate">{{ item.name }}</p>
+            <p class="text-primary font-bold">₹{{ item.unitPrice }}</p>
+          </div>
+          <!-- Qty stepper -->
+          <div class="flex items-center gap-2 border-2 border-primary rounded-xl overflow-hidden flex-shrink-0">
+            <button (click)="updateQty(item.menuItemId, item.quantity - 1)"
+              class="px-3 py-2 text-primary font-bold hover:bg-orange-50 transition-colors">−</button>
+            <span class="text-primary font-bold min-w-[1.5rem] text-center">{{ item.quantity }}</span>
+            <button (click)="updateQty(item.menuItemId, item.quantity + 1)"
+              class="px-3 py-2 text-primary font-bold hover:bg-orange-50 transition-colors">+</button>
+          </div>
+          <p class="font-bold text-dark w-16 text-right flex-shrink-0">₹{{ item.unitPrice * item.quantity }}</p>
+        </div>
+      }
+    </div>
+
+    <!-- Bill summary -->
+    <div class="bg-white rounded-2xl shadow-card p-5 mb-6">
+      <h3 class="font-bold text-dark mb-3">Bill Summary</h3>
+      <div class="space-y-2 text-sm">
+        <div class="flex justify-between text-gray-600"><span>Item Total</span><span>₹{{ cart.total() }}</span></div>
+        <div class="flex justify-between text-gray-600"><span>GST (5%)</span><span>₹{{ (cart.total() * 0.05).toFixed(2) }}</span></div>
+        <div class="flex justify-between text-gray-600"><span>Delivery Fee</span><span>₹30</span></div>
+        <div class="border-t border-gray-100 pt-2 flex justify-between font-bold text-dark text-base">
+          <span>Total</span>
+          <span>₹{{ (cart.total() + cart.total() * 0.05 + 30).toFixed(2) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex gap-3">
+      <button (click)="clearCart()" class="btn-outline flex-1 py-3 rounded-xl text-sm">Clear Cart</button>
+      <button (click)="router.navigate(['/customer/checkout'])" class="btn-primary flex-1 py-3 rounded-xl text-sm">
+        Proceed to Checkout →
+      </button>
+    </div>
+  }
+</div>

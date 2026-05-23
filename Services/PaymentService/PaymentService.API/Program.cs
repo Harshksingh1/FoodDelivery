@@ -1,10 +1,10 @@
+using FoodDelivery.Shared.Middleware;
 using System.Text;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using PaymentService.API.Middleware;
 using PaymentService.Application.Services;
 using PaymentService.Domain.Interfaces;
 using PaymentService.Infrastructure.Persistence;
@@ -71,11 +71,12 @@ using (var scope = app.Services.CreateScope())
     if (db.Database.GetPendingMigrations().Any()) db.Database.Migrate();
 }
 
-app.UseMiddleware<ExceptionMiddleware>();
+app.UseMiddleware<GlobalExceptionMiddleware>();
 if (app.Environment.IsDevelopment()) { app.UseSwagger(); app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "Payment Service v1"); c.DocumentTitle = "Payment Service"; }); }
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
+
 
 

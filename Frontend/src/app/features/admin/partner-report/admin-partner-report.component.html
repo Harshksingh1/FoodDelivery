@@ -1,0 +1,124 @@
+<div class="max-w-6xl mx-auto px-4 py-8">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-dark">📊 Partner Report</h1>
+      <p class="text-gray-500 text-sm mt-1">All registered restaurants and their details</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <input [(ngModel)]="search" (input)="applyFilter()" type="text"
+        placeholder="Search restaurant or city..."
+        class="input-field text-sm py-2 w-56" />
+      <select [(ngModel)]="filterOpen" (change)="applyFilter()" class="input-field text-sm py-2 w-32">
+        <option value="">All Status</option>
+        <option value="true">Open</option>
+        <option value="false">Closed</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Summary cards -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white rounded-2xl shadow-card p-4 text-center">
+      <p class="text-2xl font-bold text-primary">{{ restaurants().length }}</p>
+      <p class="text-gray-500 text-xs mt-1">Total Restaurants</p>
+    </div>
+    <div class="bg-white rounded-2xl shadow-card p-4 text-center">
+      <p class="text-2xl font-bold text-green-600">{{ openCount() }}</p>
+      <p class="text-gray-500 text-xs mt-1">Currently Open</p>
+    </div>
+    <div class="bg-white rounded-2xl shadow-card p-4 text-center">
+      <p class="text-2xl font-bold text-orange-600">{{ avgRating() }}</p>
+      <p class="text-gray-500 text-xs mt-1">Avg Rating</p>
+    </div>
+    <div class="bg-white rounded-2xl shadow-card p-4 text-center">
+      <p class="text-2xl font-bold text-blue-600">{{ uniqueCities() }}</p>
+      <p class="text-gray-500 text-xs mt-1">Cities</p>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="bg-white rounded-2xl shadow-card overflow-hidden">
+      @for (i of [1,2,3,4,5]; track i) {
+        <div class="flex gap-4 p-4 border-b border-gray-100 animate-pulse">
+          <div class="w-12 h-12 bg-gray-200 rounded-xl flex-shrink-0"></div>
+          <div class="flex-1 space-y-2">
+            <div class="h-4 bg-gray-200 rounded w-1/3"></div>
+            <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else if (filtered().length === 0) {
+    <div class="text-center py-16 bg-white rounded-2xl shadow-card">
+      <span class="text-6xl">🏪</span>
+      <p class="text-gray-500 mt-4">No restaurants found</p>
+    </div>
+  } @else {
+    <!-- Table view -->
+    <div class="bg-white rounded-2xl shadow-card overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-soft border-b border-gray-200">
+            <tr class="text-left text-gray-500 text-xs uppercase tracking-wide">
+              <th class="px-4 py-3">Restaurant</th>
+              <th class="px-4 py-3">City</th>
+              <th class="px-4 py-3">Cuisine</th>
+              <th class="px-4 py-3">Rating</th>
+              <th class="px-4 py-3">Status</th>
+              <th class="px-4 py-3">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of filtered(); track r.restaurantId) {
+              <tr class="border-b border-gray-50 hover:bg-orange-50 transition-colors">
+                <td class="px-4 py-3">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center text-xl flex-shrink-0">🍽️</div>
+                    <p class="font-semibold text-dark">{{ r.restaurantName }}</p>
+                  </div>
+                </td>
+                <td class="px-4 py-3">
+                  <div class="flex items-center gap-1 text-gray-600">
+                    <span class="text-xs">📍</span>
+                    <span>{{ r.city }}</span>
+                  </div>
+                </td>
+                <td class="px-4 py-3">
+                  <span class="px-2 py-0.5 bg-orange-50 text-orange-700 rounded-full text-xs font-medium">
+                    {{ r.cuisineType }}
+                  </span>
+                </td>
+                <td class="px-4 py-3">
+                  <div class="flex items-center gap-1">
+                    <span class="text-yellow-500 text-sm">⭐</span>
+                    <span class="font-semibold text-dark">{{ r.rating > 0 ? r.rating.toFixed(1) : 'N/A' }}</span>
+                  </div>
+                </td>
+                <td class="px-4 py-3">
+                  <span class="px-2.5 py-1 rounded-full text-xs font-semibold"
+                    [class.bg-green-100]="r.isOpen" [class.text-green-700]="r.isOpen"
+                    [class.bg-red-100]="!r.isOpen" [class.text-red-700]="!r.isOpen">
+                    {{ r.isOpen ? '🟢 Open' : '🔴 Closed' }}
+                  </span>
+                </td>
+                <td class="px-4 py-3">
+                  <button (click)="deleteRestaurant(r.restaurantId)"
+                    class="text-xs px-3 py-1.5 border border-red-300 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-colors">
+                    🗑️ Delete
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Footer -->
+      <div class="px-4 py-3 bg-gray-soft border-t border-gray-100 text-xs text-gray-500 flex items-center justify-between">
+        <span>Showing {{ filtered().length }} of {{ restaurants().length }} restaurants</span>
+        <span>Last updated: {{ now | date:'dd MMM yyyy, hh:mm a' }}</span>
+      </div>
+    </div>
+  }
+</div>

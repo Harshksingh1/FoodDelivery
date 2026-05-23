@@ -1,0 +1,112 @@
+<div class="min-h-screen bg-gray-soft flex items-center justify-center px-4 py-12">
+  <div class="w-full max-w-md">
+    <div class="bg-white rounded-3xl shadow-card p-8">
+      <div class="text-center mb-8">
+        <div class="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <span class="text-3xl">🍔</span>
+        </div>
+        <h1 class="text-2xl font-bold text-dark">Create account</h1>
+        <p class="text-gray-500 text-sm mt-1">Join us and get stated today</p>
+      </div>
+
+      <form (ngSubmit)="onSubmit()" class="space-y-4" novalidate>
+
+        <!-- Full Name -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Full Name</label>
+          <input [(ngModel)]="form.fullName" name="fullName" type="text"
+            (input)="clearError('fullName')"
+            placeholder="Your Name"
+            class="input-field"
+            [class.border-red-400]="fieldErrors['fullName']" />
+          @if (fieldErrors['fullName']) {
+            <p class="text-red-500 text-xs mt-1">⚠️ {{ fieldErrors['fullName'] }}</p>
+          }
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+          <input [(ngModel)]="form.email" name="email" type="email"
+            (input)="clearError('email')"
+            placeholder="you@example.com"
+            class="input-field"
+            [class.border-red-400]="fieldErrors['email']" />
+          @if (fieldErrors['email']) {
+            <p class="text-red-500 text-xs mt-1">⚠️ {{ fieldErrors['email'] }}</p>
+          }
+        </div>
+
+        <!-- Mobile -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Mobile</label>
+          <input [(ngModel)]="form.mobile" name="mobile" type="tel"
+            (input)="clearError('mobile')"
+            placeholder="10-digit mobile number"
+            maxlength="10"
+            class="input-field"
+            [class.border-red-400]="fieldErrors['mobile']" />
+          @if (fieldErrors['mobile']) {
+            <p class="text-red-500 text-xs mt-1">⚠️ {{ fieldErrors['mobile'] }}</p>
+          }
+        </div>
+
+        <!-- Password -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
+          <input [(ngModel)]="form.password" name="password" type="password"
+            (input)="clearError('password')"
+            placeholder="Min 8 chars, 1 uppercase, 1 number"
+            class="input-field"
+            [class.border-red-400]="fieldErrors['password']" />
+          @if (fieldErrors['password']) {
+            <p class="text-red-500 text-xs mt-1">⚠️ {{ fieldErrors['password'] }}</p>
+          }
+        </div>
+
+        <!-- Role selection -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">I want to join as</label>
+          <div class="grid grid-cols-3 gap-3">
+            @for (r of roles; track r.value) {
+              <button type="button" (click)="form.role = r.value"
+                class="flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all text-sm font-medium"
+                [class.border-primary]="form.role === r.value"
+                [class.bg-orange-50]="form.role === r.value"
+                [class.text-primary]="form.role === r.value"
+                [class.border-gray-200]="form.role !== r.value"
+                [class.text-gray-600]="form.role !== r.value">
+                <span class="text-2xl">{{ r.emoji }}</span>
+                {{ r.label }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- API error -->
+        @if (error()) {
+          <div class="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl">
+            ⚠️ {{ error() }}
+          </div>
+        }
+
+        <!-- Success -->
+        @if (success()) {
+          <div class="bg-green-50 border border-green-200 text-green-600 text-sm px-4 py-3 rounded-xl">
+            ✅ {{ success() }}
+          </div>
+        }
+
+        <button type="submit" [disabled]="loading()"
+          class="w-full btn-primary py-3 text-base rounded-xl disabled:opacity-60">
+          {{ loading() ? 'Creating account...' : 'Create Account' }}
+        </button>
+      </form>
+
+      <div class="mt-6 text-center text-sm text-gray-500">
+        Already have an account?
+        <a routerLink="/auth/login" class="text-primary font-semibold hover:underline ml-1">Sign in</a>
+      </div>
+    </div>
+  </div>
+</div>

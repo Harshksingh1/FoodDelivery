@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AuthService.Domain\AuthService.Domain.csproj" />
+    <ProjectReference Include="..\..\Shared\FoodDelivery.Shared\FoodDelivery.Shared.csproj" />
   </ItemGroup>
 
 </Project>

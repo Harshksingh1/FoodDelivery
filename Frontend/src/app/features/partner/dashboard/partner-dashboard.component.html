@@ -1,0 +1,128 @@
+
+<div class="max-w-5xl mx-auto px-4 py-8">
+  <h1 class="text-2xl font-bold text-dark mb-6">🍴 Partner Dashboard</h1>
+
+  <!-- Quick stats -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+    <div class="bg-white rounded-2xl shadow-card p-4 text-center">
+      <p class="text-3xl font-bold text-primary">{{ restaurants().length }}</p>
+      <p class="text-gray-500 text-sm mt-1">Restaurants</p>
+    </div>
+    <div class="bg-white rounded-2xl shadow-card p-4 text-center">
+      <p class="text-3xl font-bold text-primary">{{ totalOrders() }}</p>
+      <p class="text-gray-500 text-sm mt-1">Total Orders</p>
+    </div>
+
+    <!-- Revenue card — clickable to toggle breakdown -->
+    <div class="bg-white rounded-2xl shadow-card p-4 text-center cursor-pointer hover:ring-2 hover:ring-primary transition-all"
+         (click)="showRevenueBreakdown.set(!showRevenueBreakdown())">
+      <p class="text-3xl font-bold text-primary">₹{{ totalRevenue() | number:'1.0-0' }}</p>
+      <p class="text-gray-500 text-sm mt-1">Revenue {{ showRevenueBreakdown() ? '▲' : '▼' }}</p>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-card p-4 text-center">
+      <p class="text-3xl font-bold text-primary">{{ openCount() }}</p>
+      <p class="text-gray-500 text-sm mt-1">Open Now</p>
+    </div>
+  </div>
+
+  <!-- Revenue breakdown panel -->
+  @if (showRevenueBreakdown() && allRevenueByRestaurant().length > 0) {
+    <div class="bg-white rounded-2xl shadow-card p-6 mb-6">
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+        <h2 class="font-bold text-dark text-lg">Revenue by Restaurant</h2>
+        <!-- Date filter -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <input [(ngModel)]="fromDate" type="date" class="input-field text-sm py-1.5 w-36" />
+          <span class="text-gray-400 text-sm">to</span>
+          <input [(ngModel)]="toDate" type="date" class="input-field text-sm py-1.5 w-36" />
+          <button (click)="applyFilter()" class="btn-primary text-sm px-4 py-1.5 rounded-xl">Apply</button>
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        @for (r of filteredRevenue(); track r.restaurant.id) {
+          <div class="flex items-center justify-between p-4 bg-gray-soft rounded-xl">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center text-lg flex-shrink-0">🍽️</div>
+              <div>
+                <p class="font-semibold text-dark">{{ r.restaurant.name }}</p>
+                <p class="text-gray-500 text-xs">{{ r.restaurant.city }} · {{ r.deliveredCount }} delivered</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="font-bold text-primary text-lg">₹{{ r.revenue | number:'1.0-0' }}</p>
+              <p class="text-gray-400 text-xs">{{ r.orders.length }} total orders</p>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Total row -->
+      <div class="flex items-center justify-between px-4 py-3 mt-3 border-t-2 border-gray-200">
+        <p class="font-bold text-dark">Total ({{ appliedFrom() | date:'dd MMM' }} – {{ appliedTo() | date:'dd MMM' }})</p>
+        <p class="font-bold text-primary text-xl">₹{{ totalRevenue() | number:'1.0-0' }}</p>
+      </div>
+    </div>
+  }
+
+  <!-- My Restaurants -->
+  <div class="bg-white rounded-2xl shadow-card p-6 mb-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="font-bold text-dark text-lg">My Restaurants</h2>
+      <a routerLink="/partner/apply" class="btn-primary text-sm py-2 px-4 rounded-xl">+ Apply New</a>
+    </div>
+    @if (restaurants().length === 0) {
+      <div class="text-center py-8 text-gray-400">
+        <span class="text-4xl">🏪</span>
+        <p class="mt-2">No restaurants yet. <a routerLink="/partner/apply" class="text-primary hover:underline">Apply now</a></p>
+      </div>
+    } @else {
+      <div class="space-y-3">
+        @for (r of restaurants(); track r.id) {
+          <div class="flex items-center justify-between p-3 bg-gray-soft rounded-xl">
+            <div>
+              <p class="font-semibold text-dark">{{ r.name }}</p>
+              <p class="text-gray-500 text-xs">{{ r.city }} · {{ r.cuisineType }}</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs px-2 py-1 rounded-full font-medium"
+                [class.bg-green-100]="r.isOpen" [class.text-green-700]="r.isOpen"
+                [class.bg-red-100]="!r.isOpen" [class.text-red-700]="!r.isOpen">
+                {{ r.isOpen ? 'Open' : 'Closed' }}
+              </span>
+              <a [routerLink]="['/partner/restaurants']" class="text-primary text-sm hover:underline">Manage</a>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Recent Orders -->
+  <div class="bg-white rounded-2xl shadow-card p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="font-bold text-dark text-lg">Recent Orders</h2>
+      <a routerLink="/partner/orders" class="text-sm text-primary hover:underline">View All →</a>
+    </div>
+    @if (recentOrders().length === 0) {
+      <p class="text-gray-400 text-center py-6">No orders yet</p>
+    } @else {
+      <div class="space-y-2">
+        @for (o of recentOrders().slice(0,5); track o.id) {
+          <div class="flex items-center justify-between p-3 bg-gray-soft rounded-xl text-sm cursor-pointer hover:bg-orange-50 transition-colors"
+            (click)="router.navigate(['/partner/orders'])">
+            <div>
+              <p class="font-semibold text-dark">{{ o.restaurantName }} — {{ o.items[0]?.name }}{{ o.items.length > 1 ? ' +' + (o.items.length - 1) + ' more' : '' }}</p>
+              <p class="text-gray-400 text-xs">{{ o.createdAt | date:'dd MMM, hh:mm a' }} · {{ o.deliveryAddress.slice(0,30) }}...</p>
+            </div>
+            <div class="text-right flex-shrink-0 ml-3">
+              <p class="font-bold text-dark">₹{{ o.totalAmount }}</p>
+              <span class="text-xs px-2 py-0.5 rounded-full font-medium" [ngClass]="statusClass(o.status)">{{ o.status }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

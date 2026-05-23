@@ -8,6 +8,8 @@ public class Order
     public Guid CustomerId { get; set; }
     public Guid RestaurantId { get; set; }
     public string RestaurantName { get; set; } = string.Empty;
+    public string CustomerName { get; set; } = string.Empty;
+    public string CustomerMobile { get; set; } = string.Empty;
     public OrderStatus Status { get; set; } = OrderStatus.DraftCart;
 
     public string DeliveryAddress { get; set; } = string.Empty;

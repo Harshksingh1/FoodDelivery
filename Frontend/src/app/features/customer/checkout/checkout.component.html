@@ -1,0 +1,140 @@
+<div class="max-w-2xl mx-auto px-4 py-8">
+  <h1 class="text-2xl font-bold text-dark mb-6">📦 Checkout</h1>
+
+  <!-- Step indicator -->
+  <div class="flex items-center gap-2 mb-8">
+    @for (s of steps; track s.n) {
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors"
+          [class.bg-primary]="step() >= s.n" [class.text-white]="step() >= s.n"
+          [class.bg-gray-200]="step() < s.n" [class.text-gray-500]="step() < s.n">
+          {{ step() > s.n ? '✓' : s.n }}
+        </div>
+        <span class="text-sm font-medium hidden sm:block" [class.text-primary]="step() >= s.n" [class.text-gray-400]="step() < s.n">{{ s.label }}</span>
+      </div>
+      @if (s.n < 3) { <div class="flex-1 h-0.5" [class.bg-primary]="step() > s.n" [class.bg-gray-200]="step() <= s.n"></div> }
+    }
+  </div>
+
+  <!-- Step 1: Details -->
+  @if (step() === 1) {
+    <div class="bg-white rounded-2xl shadow-card p-6 space-y-4">
+      <h2 class="font-bold text-dark text-lg">Your Details</h2>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1.5">Full Name</label>
+        <input [(ngModel)]="form.customerName" type="text" placeholder="Enter your full name" class="input-field" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1.5">Mobile Number</label>
+        <input [(ngModel)]="form.customerMobile" type="tel" placeholder="Enter your mobile number" class="input-field" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1.5">Delivery Address</label>
+        <textarea [(ngModel)]="form.deliveryAddress" rows="3" placeholder="Enter your full delivery address..." class="input-field resize-none"></textarea>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1.5">Delivery Instructions <span class="text-gray-400 font-normal">(optional)</span></label>
+        <input [(ngModel)]="form.deliveryInstructions" type="text" placeholder="e.g. Ring the bell, leave at door..." class="input-field" />
+      </div>
+
+      <button (click)="step.set(2)" [disabled]="!step1Valid"
+        class="w-full btn-primary py-3 rounded-xl disabled:opacity-60">
+        Continue to Payment →
+      </button>
+    </div>
+  }
+
+  <!-- Step 2: Payment -->
+  @if (step() === 2) {
+    <div class="bg-white rounded-2xl shadow-card p-6 space-y-4">
+      <h2 class="font-bold text-dark text-lg">Payment Method</h2>
+      <div class="space-y-3">
+        @for (pm of paymentMethods; track pm.value) {
+          <label class="flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all"
+            [class.border-primary]="form.paymentMethod === pm.value"
+            [class.bg-orange-50]="form.paymentMethod === pm.value"
+            [class.border-gray-200]="form.paymentMethod !== pm.value">
+            <input type="radio" [(ngModel)]="form.paymentMethod" [value]="pm.value" name="pm" class="accent-primary" />
+            <span class="text-xl">
+              @if (pm.value === 'COD') { 💵 }
+              @if (pm.value === 'UPI') { 📱 }
+              @if (pm.value === 'Card') { 💳 }
+            </span>
+            <div>
+              <p class="font-semibold text-dark text-sm">{{ pm.label }}</p>
+              <p class="text-gray-500 text-xs">{{ pm.desc }}</p>
+            </div>
+          </label>
+        }
+      </div>
+
+      <!-- Order summary -->
+      <div class="bg-gray-soft rounded-xl p-4 text-sm space-y-1">
+        <div class="flex justify-between text-gray-600"><span>Items</span><span>₹{{ cart.total() }}</span></div>
+        <div class="flex justify-between text-gray-600"><span>GST</span><span>₹{{ (cart.total() * 0.05).toFixed(2) }}</span></div>
+        <div class="flex justify-between text-gray-600"><span>Delivery</span><span>₹30</span></div>
+        <div class="flex justify-between font-bold text-dark border-t border-gray-200 pt-1 mt-1">
+          <span>Total</span><span>₹{{ totalAmount().toFixed(2) }}</span>
+        </div>
+      </div>
+
+      <div class="flex gap-3">
+        <button (click)="step.set(1)" class="btn-outline flex-1 py-3 rounded-xl">← Back</button>
+        <button (click)="placeOrder()" [disabled]="placing()" class="btn-primary flex-1 py-3 rounded-xl disabled:opacity-60">
+          {{ placing() ? 'Placing...' : 'Place Order' }}
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Step 3: Confirmation -->
+  @if (step() === 3 && placedOrder()) {
+    <div class="bg-white rounded-2xl shadow-card p-8 text-center">
+      <span class="text-6xl">🎉</span>
+      <h2 class="text-2xl font-bold text-dark mt-4">Order Placed!</h2>
+      <p class="text-gray-500 mt-2">Your order has been placed successfully</p>
+      <div class="bg-gray-soft rounded-xl p-4 mt-6 text-left text-sm space-y-2.5">
+        <div class="flex justify-between gap-4">
+          <span class="text-gray-500 flex-shrink-0">Order ID</span>
+          <span class="font-mono text-xs text-dark break-all text-right">{{ placedOrder()!.id }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-500">Restaurant</span>
+          <span class="font-semibold text-dark">{{ placedOrder()!.restaurantName }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-500">Customer</span>
+          <span class="font-semibold text-dark">{{ form.customerName }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-500">Mobile</span>
+          <span class="text-dark">{{ form.customerMobile }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-500">Delivery Address</span>
+          <span class="text-dark text-right max-w-xs">{{ form.deliveryAddress }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-500">Payment</span>
+          <span class="text-dark">{{ form.paymentMethod }}</span>
+        </div>
+        <div class="flex justify-between border-t border-gray-200 pt-2">
+          <span class="text-gray-500">Total</span>
+          <span class="font-bold text-primary text-base">₹{{ placedOrder()!.totalAmount }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-500">Status</span>
+          <span class="text-orange-600 font-medium">{{ placedOrder()!.status }}</span>
+        </div>
+      </div>
+      <div class="flex gap-3 mt-6">
+        <button (click)="router.navigate(['/customer/orders'])" class="btn-outline flex-1 py-3 rounded-xl">View Orders</button>
+        <button (click)="router.navigate(['/'])" class="btn-primary flex-1 py-3 rounded-xl">Continue Shopping</button>
+      </div>
+    </div>
+  }
+</div>

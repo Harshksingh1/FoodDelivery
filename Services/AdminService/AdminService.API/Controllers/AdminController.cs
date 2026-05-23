@@ -37,4 +37,13 @@ public class AdminController : ControllerBase
         ForwardToken();
         return Ok(await _svc.GetPartnerReportAsync());
     }
+
+    [HttpGet("reports/revenue")]
+    public async Task<IActionResult> RevenueReport([FromQuery] DateTime? from, [FromQuery] DateTime? to)
+    {
+        ForwardToken();
+        var dateFrom = from ?? DateTime.UtcNow.AddDays(-30);
+        var dateTo = to ?? DateTime.UtcNow;
+        return Ok(await _svc.GetRestaurantRevenueReportAsync(dateFrom, dateTo));
+    }
 }

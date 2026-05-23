@@ -39,6 +39,6 @@
     <Project Path="Services/PaymentService/PaymentService.Tests/PaymentService.Tests.csproj" />
   </Folder>
   <Folder Name="/Shared/">
-    <Project Path="Shared/FoodDelivery.Shared/FoodDelivery.Shared.csproj" />
+    <Project Path="Services/Shared/FoodDelivery.Shared/FoodDelivery.Shared.csproj" />
   </Folder>
 </Solution>

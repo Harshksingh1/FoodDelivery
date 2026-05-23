@@ -261,7 +261,6 @@ public class AuthAppService : IAuthAppService
             Email = user.Email!,
             Mobile = user.Mobile,
             Role = roles.FirstOrDefault() ?? user.Role.ToString(),
-            ProfileImageUrl = user.ProfileImageUrl,
             CreatedAt = user.CreatedAt
         });
     }
@@ -277,27 +276,6 @@ public class AuthAppService : IAuthAppService
 
         await _userRepo.UpdateAsync(user);
         return (true, "Profile updated successfully.");
-    }
-
-    public async Task<(bool Success, string Message, string? ImageUrl)> UploadProfileImageAsync(
-        Guid userId, Stream imageStream, string fileName)
-    {
-        var user = await _userRepo.GetByIdAsync(userId);
-        if (user == null) return (false, "User not found.", null);
-
-        var ext = Path.GetExtension(fileName);
-        var savedName = $"profiles/{userId}{ext}";
-        var savePath = Path.Combine("wwwroot", savedName);
-
-        Directory.CreateDirectory(Path.GetDirectoryName(savePath)!);
-        await using var fs = File.Create(savePath);
-        await imageStream.CopyToAsync(fs);
-
-        user.ProfileImageUrl = $"/{savedName}";
-        user.UpdatedAt = DateTime.UtcNow;
-        await _userRepo.UpdateAsync(user);
-
-        return (true, "Profile image uploaded.", user.ProfileImageUrl);
     }
 
     private static string GenerateOtp() =>
